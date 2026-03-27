@@ -29,7 +29,7 @@ async function main() {
     // Start MCP server as a subprocess
     const transport = new StdioClientTransport({
         command: "npx",
-        args: ["ts-node", "mcp-server.ts"],
+        args: ["tsx", "mcp-server.ts"],
         cwd: process.cwd(),
         env: { ...process.env } as Record<string, string>,
     });
@@ -39,11 +39,17 @@ async function main() {
 
     // Discover MCP tools
     const { tools: mcpTools } = await mcpClient.listTools();
-    const anthropicTools: Anthropic.Tool[] = mcpTools.map((tool) => ({
-        name: tool.name,
-        description: tool.description || "",
-        input_schema: tool.inputSchema as Anthropic.Tool["input_schema"],
-    }));
+    const anthropicTools: Anthropic.Tool[] = mcpTools.map((tool) => {
+        const { $schema, ...schema } = tool.inputSchema as Record<string, unknown>;
+        return {
+            name: tool.name,
+            description: tool.description || "",
+            input_schema: {
+                type: "object" as const,
+                ...schema,
+            } as Anthropic.Tool["input_schema"],
+        };
+    });
 
     const client = new Anthropic();
     const messages: Anthropic.MessageParam[] = [
@@ -57,7 +63,7 @@ async function main() {
     let continueLoop = true;
     while (continueLoop) {
         const response = await client.messages.create({
-            model: "claude-sonnet-4-6-20250514",
+            model: process.env.ANTHROPIC_MODEL || "claude-haiku-4-5-20251001",
             max_tokens: 4096,
             system: SYSTEM_PROMPT,
             tools: anthropicTools,

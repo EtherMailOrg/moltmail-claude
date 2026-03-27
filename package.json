@@ -1,9 +1,9 @@
 {
   "type": "module",
   "scripts": {
-    "setup": "ts-node setup.ts",
-    "mcp-server": "ts-node mcp-server.ts",
-    "agent": "ts-node agent.ts"
+    "setup": "tsx setup.ts",
+    "mcp-server": "tsx mcp-server.ts",
+    "agent": "tsx agent.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.52.0",
@@ -15,6 +15,7 @@
   "devDependencies": {
     "@types/node": "^25.2.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }

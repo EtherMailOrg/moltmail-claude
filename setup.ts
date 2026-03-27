@@ -119,6 +119,12 @@ async function main() {
         { mode: 0o600 }
     );
 
+    await fs.writeFile(
+        path.join(STATE_DIR, "passphrase"),
+        passphrase,
+        { mode: 0o600 }
+    );
+
     console.log("\n🔐 Wallet encrypted and saved successfully");
     console.log("Config path:", CONFIG_PATH);
 }

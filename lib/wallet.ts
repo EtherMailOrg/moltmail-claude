@@ -5,11 +5,9 @@ import { decrypt, type EncryptedPayload } from "./crypto.ts";
 import pkg from "enquirer";
 const { prompt } = pkg;
 
-const CONFIG_PATH = path.resolve(
-    process.cwd(),
-    "state",
-    "config.enc.json"
-);
+const STATE_DIR = path.resolve(process.cwd(), "state");
+const CONFIG_PATH = path.join(STATE_DIR, "config.enc.json");
+const PASSPHRASE_PATH = path.join(STATE_DIR, "passphrase");
 
 type WalletConfig = {
     address: string;
@@ -20,6 +18,11 @@ export async function promptPassphrase(): Promise<string> {
     if (process.env.ETHERMAIL_PASSPHRASE) {
         return process.env.ETHERMAIL_PASSPHRASE;
     }
+
+    try {
+        const stored = await fs.readFile(PASSPHRASE_PATH, "utf8");
+        if (stored.trim()) return stored.trim();
+    } catch {}
 
     const { passphrase } = await prompt<{ passphrase: string }>({
         type: "password",
